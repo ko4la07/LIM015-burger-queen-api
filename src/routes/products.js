@@ -1,3 +1,4 @@
+const productsCtrl = require('../controller/products.controller');
 const {
   requireAuth,
   requireAdmin,
@@ -27,8 +28,8 @@ module.exports = (app, nextMain) => {
    * @code {200} si la autenticación es correcta
    * @code {401} si no hay cabecera de autenticación
    */
-  app.get('/products', requireAuth, (req, resp, next) => {
-  });
+  app.get('/products', productsCtrl.getProducts);
+  // app.get('/products', requireAuth, productsCtrl.getProducts);
 
   /**
    * @name GET /products/:productId
@@ -47,8 +48,9 @@ module.exports = (app, nextMain) => {
    * @code {401} si no hay cabecera de autenticación
    * @code {404} si el producto con `productId` indicado no existe
    */
-  app.get('/products/:productId', requireAuth, (req, resp, next) => {
-  });
+  app.get('/products/:productId', productsCtrl.getProductById);
+  // app.get('/products/:productId', requireAuth, (req, resp, next) => {
+  // });
 
   /**
    * @name POST /products
@@ -72,9 +74,9 @@ module.exports = (app, nextMain) => {
    * @code {403} si no es admin
    * @code {404} si el producto con `productId` indicado no existe
    */
-  app.post('/products', requireAdmin, (req, resp, next) => {
-  });
-
+  app.post('/products', productsCtrl.createProduct);
+  // app.post('/products', requireAdmin, (req, resp, next) => {
+  // });
 
   /**
    * @name PUT /products
@@ -99,8 +101,9 @@ module.exports = (app, nextMain) => {
    * @code {403} si no es admin
    * @code {404} si el producto con `productId` indicado no existe
    */
-  app.put('/products/:productId', requireAdmin, (req, resp, next) => {
-  });
+  app.put('/products/:productId', productsCtrl.updateProductById);
+  // app.put('/products/:productId', requireAdmin, (req, resp, next) => {
+  // });
 
   /**
    * @name DELETE /products
@@ -120,8 +123,9 @@ module.exports = (app, nextMain) => {
    * @code {403} si no es ni admin
    * @code {404} si el producto con `productId` indicado no existe
    */
-  app.delete('/products/:productId', requireAdmin, (req, resp, next) => {
-  });
+  app.delete('/products/:productId', productsCtrl.deleteProductById);
+  // app.delete('/products/:productId', requireAdmin, (req, resp, next) => {
+  // });
 
   nextMain();
 };

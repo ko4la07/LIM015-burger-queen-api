@@ -28,7 +28,6 @@ const __e2e = {
   // testObjects: [],
 };
 
-
 const fetch = (url, opts = {}) => nodeFetch(`${baseUrl}${url}`, {
   ...opts,
   headers: {
@@ -41,7 +40,6 @@ const fetch = (url, opts = {}) => nodeFetch(`${baseUrl}${url}`, {
       : {}
   ),
 });
-
 
 const fetchWithAuth = (token) => (url, opts = {}) => fetch(url, {
   ...opts,
@@ -85,7 +83,6 @@ const checkAdminCredentials = () => fetch('/auth', {
   })
   .then(({ token }) => Object.assign(__e2e, { adminToken: token }));
 
-
 const waitForServerToBeReady = (retries = 10) => new Promise((resolve, reject) => {
   if (!retries) {
     return reject(new Error('Server took to long to start'));
@@ -101,7 +98,6 @@ const waitForServerToBeReady = (retries = 10) => new Promise((resolve, reject) =
       .catch(() => waitForServerToBeReady(retries - 1).then(resolve, reject));
   }, 1000);
 });
-
 
 module.exports = () => new Promise((resolve, reject) => {
   if (process.env.REMOTE_URL) {
