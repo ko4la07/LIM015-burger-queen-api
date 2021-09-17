@@ -26,6 +26,7 @@ const userSchema = new Schema({
 });
 
 // creamos un metodo con nombre encryptPassword
+// statics es un metodo estatico
 userSchema.statics.encryptPassword = async (password) => {
   const salt = await bcrypt.genSalt(10);
   const hash = await bcrypt.hash(password, salt);
