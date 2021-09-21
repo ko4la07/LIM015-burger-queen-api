@@ -1,4 +1,6 @@
+const { isAdmin } = require('../middleware/auth');
 const Product = require('../models/Products');
+const { isCorrectId } = require('../utils/utils');
 
 const createProduct = async (req, res) => {
   const {
@@ -28,10 +30,24 @@ const updateProductById = async (req, res) => {
   res.status(200).json(updatedProduct);
 };
 
-const deleteProductById = async (req, res) => {
-  const { productId } = req.params;
-  await Product.findByIdAndDelete(productId);
-  res.status(204).json();
+const deleteProductById = async (req, res, next) => {
+  try {
+    if (!isAdmin(req)) return next(403);
+
+    const { productId } = req.params;
+
+    if (!isCorrectId(productId)) return res.status(404).json({ message: 'wrong id format' });
+
+    const productFound = await Product.findOne({ _id: productId });
+
+    if (!productFound) return res.status(404).json({ message: 'the product does not exist' });
+
+    await Product.findByIdAndDelete(productId);
+
+    return res.status(200).json({ message: 'the product was removed' });
+  } catch (error) {
+    return res.status(404).json({ message: error });
+  }
 };
 
 module.exports = {

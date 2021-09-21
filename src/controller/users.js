@@ -1,10 +1,10 @@
 // const { config } = require('dotenv');
 // const jwt = require('jsonwebtoken');
+const { isAdmin } = require('../middleware/auth');
 const Role = require('../models/Role');
-// const User = require('../models/User');
 
 const User = require('../models/User');
-const { isValidEmail, isValidPassword } = require('../utils/utils');
+const { isValidEmail, isValidPassword, isCorrectIdOrEmail } = require('../utils/utils');
 
 // Creando usuarios
 const createUser = async (req, res, next) => {
@@ -56,4 +56,71 @@ const getUsers = async (req, res) => {
   res.json(allUsers);
 };
 
-module.exports = { getUsers, createUser };
+// obteniendo un usuario por su Id
+const getUserById = async (req, res, next) => {
+  try {
+    const { uid } = req.params;
+    const validate = isCorrectIdOrEmail(uid);
+    const userFound = await User.findOne(validate);
+    // console.log(userFound);
+    if (!userFound) return next(404);
+    // console.log(userFound._id.toString());
+    if (isAdmin(req) || req.authToken.id === userFound._id.toString()) {
+      return res.status(200).json(userFound);
+    }
+    return next(403);
+  } catch (error) {
+    return next(error);
+  }
+};
+
+// actualizando datos de usuario
+const updateUser = async (req, res, next) => {
+  try {
+    const { uid } = req.params;
+    const { body } = req;
+    // console.log(Object.entries(body));
+    const validate = isCorrectIdOrEmail(uid);
+    // console.log(validate);
+    const userFound = await User.findOne(validate);
+    // console.log(userFound);
+    if (!userFound) return next(404);
+    // console.log(userFound._id.toString());
+    if (!isAdmin(req) && req.authToken.uid !== userFound._id.toString()) return next(403);
+    if (Object.entries(body).length === 0) return next(400);
+    if (!isAdmin(req) && body.roles) return next(403);
+
+    if (body.email && !isValidEmail(body.email)) return next(400);
+    if (body.password && !isValidPassword(body.password)) return next(400);
+
+    const updatedUser = await User.findByIdAndUpdate(uid, body, {
+      new: true, // para obtener los valores actualizados
+    });
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    next(404);
+  }
+};
+
+// eliminando usuario
+const deleteUser = async (req, res, next) => {
+  try {
+    const { uid } = req.params;
+    const validate = isCorrectIdOrEmail(uid);
+    const userFound = await User.findOne(validate);
+    // console.log(userFound);
+    if (!userFound) return next(404);
+    // console.log(userFound._id.toString());
+    if (isAdmin(req) || req.authToken.uid === userFound._id.toString()) {
+      await User.findByIdAndDelete({ _id: userFound._id });
+      return res.status(200).send(userFound);
+    }
+    return next(403);
+  } catch (error) {
+    return next(error);
+  }
+};
+
+module.exports = {
+  getUsers, createUser, getUserById, updateUser, deleteUser,
+};

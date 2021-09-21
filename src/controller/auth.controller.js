@@ -1,25 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const config = require('../config');
-// const Role = require('../models/Role');
-
-// sign in usuarios
-// const signIn = async (req, res) => {
-//   // populate para obtener todo el contenido de los roles
-//   const userFound = await User.findOne({ email: req.body.email }).populate('roles');
-
-//   if (!userFound) return res.status(400).json({ message: 'User not found' });
-
-//   const matchPass = await User.matchPassword(req.body.password, userFound.password);
-
-//   if (!matchPass) return res.status(400).json({ token: null, message: 'Invalid Password' });
-
-//   const token = jwt.sign({ id: userFound._id }, config.secret, {
-//     expiresIn: 86400, // 24 horas
-//   });
-
-//   res.json({ token });
-// };
 
 // autenticando usuarios
 const authUser = async (req, res, next) => {
