@@ -2,32 +2,54 @@ const { isAdmin } = require('../middleware/auth');
 const Product = require('../models/Products');
 const { isCorrectId } = require('../utils/utils');
 
-const createProduct = async (req, res) => {
-  const {
-    name, category, price, image,
-  } = req.body;
-  const newProduct = new Product({
-    name, category, price, image,
-  });
-  const productSaved = await newProduct.save();
-  res.status(201).json(productSaved);
+const createProduct = async (req, res, next) => {
+  try {
+    const {
+      name, category, price, image,
+    } = req.body;
+
+    if (Object.entries(req.body).length === 0) return next(400);
+
+    const newProduct = new Product({
+      name, category, price, image,
+    });
+    const productSaved = await newProduct.save();
+    res.status(200).json(productSaved);
+  } catch (error) {
+    return next(error);
+  }
 };
 
-const getProducts = async (req, res) => {
-  const products = await Product.find();
-  res.json(products);
+// debo agregar paginación aquí
+const getProducts = async (req, res, next) => {
+  try {
+    const products = await Product.find();
+    res.json(products);
+  } catch (error) {
+    return next(error);
+  }
 };
 
-const getProductById = async (req, res) => {
-  const product = await Product.findById(req.params.productId);
-  res.status(200).json(product);
+const getProductById = async (req, res, next) => {
+  try {
+    if (!isCorrectId(req.params.productId)) return next(404);
+    const product = await Product.findById(req.params.productId);
+    if (!product) return next(404);
+    return res.status(200).json(product);
+  } catch (error) {
+    return next(error);
+  }
 };
 
-const updateProductById = async (req, res) => {
-  const updatedProduct = await Product.findByIdAndUpdate(req.params.productId, req.body, {
-    new: true, // para obtener los valores actualizados
-  });
-  res.status(200).json(updatedProduct);
+const updateProductById = async (req, res, next) => {
+  try {
+    const updatedProduct = await Product.findByIdAndUpdate(req.params.productId, req.body, {
+      new: true, // para obtener los valores actualizados
+    });
+    return res.status(200).json(updatedProduct);
+  } catch (error) {
+    return next(error);
+  }
 };
 
 const deleteProductById = async (req, res, next) => {
@@ -46,7 +68,7 @@ const deleteProductById = async (req, res, next) => {
 
     return res.status(200).json({ message: 'the product was removed' });
   } catch (error) {
-    return res.status(404).json({ message: error });
+    return next(error);
   }
 };
 

@@ -45,15 +45,20 @@ const createUser = async (req, res, next) => {
 
     return res.status(200).json({ message: 'User created successfully' });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };
 
 // obteniendo a todos los usuarios
 // !!! falta modificar y mostrar los resultados que nos piden en la documentación
-const getUsers = async (req, res) => {
-  const allUsers = await User.find();
-  res.json(allUsers);
+// debo agregar paginación aquí
+const getUsers = async (req, res, next) => {
+  try {
+    const allUsers = await User.find();
+    res.json(allUsers);
+  } catch (error) {
+    return next(error);
+  }
 };
 
 // obteniendo un usuario por su Id
@@ -98,7 +103,7 @@ const updateUser = async (req, res, next) => {
     });
     res.status(200).json(updatedUser);
   } catch (error) {
-    next(404);
+    return next(404);
   }
 };
 
