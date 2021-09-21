@@ -1,4 +1,4 @@
-const { isAdmin } = require('../middleware/auth');
+const { checkIsAdmin } = require('../middleware/auth');
 const Product = require('../models/Products');
 const { isCorrectId } = require('../utils/utils');
 
@@ -54,7 +54,9 @@ const updateProductById = async (req, res, next) => {
 
 const deleteProductById = async (req, res, next) => {
   try {
-    if (!isAdmin(req)) return next(403);
+    const checkAdmin = await checkIsAdmin(req);
+
+    if (!checkAdmin) return next(403);
 
     const { productId } = req.params;
 

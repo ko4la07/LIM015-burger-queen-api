@@ -1,6 +1,7 @@
 // const { config } = require('dotenv');
-// const jwt = require('jsonwebtoken');
-const { isAdmin } = require('../middleware/auth');
+const jwt = require('jsonwebtoken');
+const { secret } = require('../config');
+const { checkIsAdmin } = require('../middleware/auth');
 const Role = require('../models/Role');
 
 const User = require('../models/User');
@@ -65,12 +66,21 @@ const getUsers = async (req, res, next) => {
 const getUserById = async (req, res, next) => {
   try {
     const { uid } = req.params;
+    const { authorization } = req.headers;
+
+    // eslint-disable-next-line no-unused-vars
+    const [type, token] = authorization.split(' ');
+    const jwToken = jwt.verify(token, secret);
+
     const validate = isCorrectIdOrEmail(uid);
     const userFound = await User.findOne(validate);
     // console.log(userFound);
     if (!userFound) return next(404);
-    // console.log(userFound._id.toString());
-    if (isAdmin(req) || req.authToken.id === userFound._id.toString()) {
+
+    const checkAdmin = await checkIsAdmin(req);
+
+    // console.log(jwToken.id === uid);
+    if (checkAdmin || jwToken.id === uid) {
       return res.status(200).json(userFound);
     }
     return next(403);
@@ -84,16 +94,27 @@ const updateUser = async (req, res, next) => {
   try {
     const { uid } = req.params;
     const { body } = req;
-    // console.log(Object.entries(body));
+    const { authorization } = req.headers;
+
+    // eslint-disable-next-line no-unused-vars
+    const [type, token] = authorization.split(' ');
+    const jwToken = jwt.verify(token, secret);
+
     const validate = isCorrectIdOrEmail(uid);
-    // console.log(validate);
+
     const userFound = await User.findOne(validate);
-    // console.log(userFound);
+
     if (!userFound) return next(404);
-    // console.log(userFound._id.toString());
-    if (!isAdmin(req) && req.authToken.uid !== userFound._id.toString()) return next(403);
+
+    const checkAdmin = await checkIsAdmin(req);
+
+    // console.log(jwToken.id === uid);
+
+    if (!checkAdmin && jwToken.id !== uid) return res.json({ message: 'Unauthorized' });
+
     if (Object.entries(body).length === 0) return next(400);
-    if (!isAdmin(req) && body.roles) return next(403);
+
+    if (!checkAdmin && body.roles) return res.json({ message: 'require admin role' });
 
     if (body.email && !isValidEmail(body.email)) return next(400);
     if (body.password && !isValidPassword(body.password)) return next(400);
@@ -103,7 +124,7 @@ const updateUser = async (req, res, next) => {
     });
     res.status(200).json(updatedUser);
   } catch (error) {
-    return next(404);
+    res.json({ message: error });
   }
 };
 
@@ -111,12 +132,20 @@ const updateUser = async (req, res, next) => {
 const deleteUser = async (req, res, next) => {
   try {
     const { uid } = req.params;
+    const { authorization } = req.headers;
+
+    // eslint-disable-next-line no-unused-vars
+    const [type, token] = authorization.split(' ');
+    const jwToken = jwt.verify(token, secret);
+    const checkAdmin = await checkIsAdmin(req);
+    // console.log(jwToken.id === uid);
+
     const validate = isCorrectIdOrEmail(uid);
     const userFound = await User.findOne(validate);
     // console.log(userFound);
     if (!userFound) return next(404);
     // console.log(userFound._id.toString());
-    if (isAdmin(req) || req.authToken.uid === userFound._id.toString()) {
+    if (checkAdmin || jwToken.id === uid) {
       await User.findByIdAndDelete({ _id: userFound._id });
       return res.status(200).send(userFound);
     }

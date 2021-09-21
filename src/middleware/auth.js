@@ -4,6 +4,7 @@ const User = require('../models/User');
 const config = require('../config');
 
 const { secret } = config;
+
 module.exports.isAuthenticated = async (req, resp, next) => {
   try {
     const { authorization } = req.headers;
@@ -21,6 +22,7 @@ module.exports.isAuthenticated = async (req, resp, next) => {
       if (err) {
         return next(403);
       }
+      // console.log(decodedToken.id);
       req.userId = decodedToken.id;
     });
     const searchUser = await User.findById(req.userId);
@@ -38,9 +40,17 @@ module.exports.isAdmin = async (req, resp, next) => {
     const element = doc.roles;
     const res = element.map((id) => id.name);
     const result = res.includes('admin');
-    if (!result) return resp.status(403).json({ message: 'Require Admin role' });
+    if (!result) return next(403);
     next();
   } catch (error) {
     console.error(error);
   }
+};
+
+module.exports.checkIsAdmin = async (req) => {
+  const doc = await User.findOne({ _id: req.userId }).populate('roles');
+  const element = doc.roles;
+  const res = element.map((id) => id.name);
+  const result = await res.includes('admin');
+  return result;
 };
