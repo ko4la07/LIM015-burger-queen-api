@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const mongoosePaginate = require('mongoose-paginate-v2');
 
 const { Schema, model } = mongoose;
 
@@ -37,5 +38,7 @@ userSchema.statics.matchPassword = async (password, receivedPassword) => {
   const result = await bcrypt.compare(password, receivedPassword);
   return result;
 };
+
+userSchema.plugin(mongoosePaginate);
 
 module.exports = model('User', userSchema);

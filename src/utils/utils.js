@@ -34,9 +34,20 @@ const isCorrectId = (parameter) => {
   return { message: 'id format incorrect' };
 };
 
+const pages = (collection, url, limit, page, totalPages) => {
+  const links = {
+    first: `${url}?limit=${limit}&page=1`,
+    prev: collection.hasPrevPage ? `${url}?limit=${limit}&page=${page - 1}` : `${url}?limit=${limit}&page=${page}`,
+    next: collection.hasNextPage ? `${url}?limit=${limit}&page=${page + 1}` : `${url}?limit=${limit}&page=${totalPages}`,
+    last: `${url}?limit=${limit}&page=${totalPages}`,
+  };
+  return links;
+};
+
 module.exports = {
   isValidEmail,
   isValidPassword,
   isCorrectIdOrEmail,
   isCorrectId,
+  pages,
 };

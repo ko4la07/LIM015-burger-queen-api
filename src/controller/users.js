@@ -5,7 +5,9 @@ const { checkIsAdmin } = require('../middleware/auth');
 const Role = require('../models/Role');
 
 const User = require('../models/User');
-const { isValidEmail, isValidPassword, isCorrectIdOrEmail } = require('../utils/utils');
+const {
+  isValidEmail, isValidPassword, isCorrectIdOrEmail, pages,
+} = require('../utils/utils');
 
 // Creando usuarios
 const createUser = async (req, res, next) => {
@@ -51,12 +53,17 @@ const createUser = async (req, res, next) => {
 };
 
 // obteniendo a todos los usuarios
-// !!! falta modificar y mostrar los resultados que nos piden en la documentación
-// debo agregar paginación aquí
 const getUsers = async (req, res, next) => {
   try {
-    const allUsers = await User.find();
-    res.json(allUsers);
+    const url = `${req.protocol}://${req.get('host') + req.path}`;
+    // console.log(url);
+    const limit = parseInt(req.query.limit, 10) || 10;
+    const page = parseInt(req.query.page, 10) || 1;
+
+    const allUsers = await User.paginate({}, { limit, page });
+    // console.log(url, allUsers.limit, allUsers.page, allUsers.totalPages);
+    const linksPages = pages(allUsers, url, allUsers.limit, allUsers.page, allUsers.totalPages);
+    res.json(linksPages);
   } catch (error) {
     return next(error);
   }

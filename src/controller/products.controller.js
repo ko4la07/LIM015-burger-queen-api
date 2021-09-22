@@ -1,6 +1,6 @@
 const { checkIsAdmin } = require('../middleware/auth');
 const Product = require('../models/Products');
-const { isCorrectId } = require('../utils/utils');
+const { isCorrectId, pages } = require('../utils/utils');
 
 const createProduct = async (req, res, next) => {
   try {
@@ -20,11 +20,18 @@ const createProduct = async (req, res, next) => {
   }
 };
 
-// debo agregar paginación aquí
 const getProducts = async (req, res, next) => {
   try {
-    const products = await Product.find();
-    res.json(products);
+    const url = `${req.protocol}://${req.get('host') + req.path}`;
+    // console.log(url);
+    const limit = parseInt(req.query.limit, 10) || 10;
+    const page = parseInt(req.query.page, 10) || 1;
+
+    const products = await Product.paginate({}, { limit, page });
+    // console.log(products.totalPages);
+    const linksPages = pages(products, url, products.limit, products.page, products.totalPages);
+
+    res.json(linksPages);
   } catch (error) {
     return next(error);
   }
