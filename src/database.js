@@ -14,7 +14,7 @@ mongoose
     // useFindAndModify: true,
     // useCreateIndex: true,
   })
-  .then(db => console.log('db is conected'))
+  .then(() => console.log('db is conected'))
   .catch(console.error);
 
 // mongoose

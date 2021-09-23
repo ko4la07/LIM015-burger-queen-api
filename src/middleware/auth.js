@@ -27,7 +27,7 @@ module.exports.isAuthenticated = async (req, resp, next) => {
     });
     const searchUser = await User.findById(req.userId);
     // console.log(searchUser);
-    if (!searchUser) return resp.status(404).json({ message: 'no user found' });
+    if (!searchUser) return resp.status(404).json({ message: 'Error Token: no user found' });
     next();
   } catch (error) {
     return resp.status(401).json({ message: 'Unauthorized' });

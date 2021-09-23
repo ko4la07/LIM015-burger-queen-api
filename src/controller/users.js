@@ -1,9 +1,7 @@
-// const { config } = require('dotenv');
 const jwt = require('jsonwebtoken');
 const { secret } = require('../config');
 const { checkIsAdmin } = require('../middleware/auth');
 const Role = require('../models/Role');
-
 const User = require('../models/User');
 const {
   isValidEmail, isValidPassword, isCorrectIdOrEmail, pages,
@@ -63,6 +61,7 @@ const getUsers = async (req, res, next) => {
     const allUsers = await User.paginate({}, { limit, page });
     // console.log(url, allUsers.limit, allUsers.page, allUsers.totalPages);
     const linksPages = pages(allUsers, url, allUsers.limit, allUsers.page, allUsers.totalPages);
+    // console.log(allUsers);
     res.json(linksPages);
   } catch (error) {
     return next(error);
@@ -80,6 +79,7 @@ const getUserById = async (req, res, next) => {
     const jwToken = jwt.verify(token, secret);
 
     const validate = isCorrectIdOrEmail(uid);
+    if (validate.message === 'id or email format incorrect') return res.status(404).json(validate);
     const userFound = await User.findOne(validate);
     // console.log(userFound);
     if (!userFound) return next(404);
@@ -87,7 +87,7 @@ const getUserById = async (req, res, next) => {
     const checkAdmin = await checkIsAdmin(req);
 
     // console.log(jwToken.id === uid);
-    if (checkAdmin || jwToken.id === uid) {
+    if (checkAdmin || jwToken.id === userFound._id.toString()) {
       return res.status(200).json(userFound);
     }
     return next(403);
@@ -109,6 +109,8 @@ const updateUser = async (req, res, next) => {
 
     const validate = isCorrectIdOrEmail(uid);
 
+    if (validate.message === 'id or email format incorrect') return res.status(404).json(validate);
+
     const userFound = await User.findOne(validate);
 
     if (!userFound) return next(404);
@@ -117,7 +119,7 @@ const updateUser = async (req, res, next) => {
 
     // console.log(jwToken.id === uid);
 
-    if (!checkAdmin && jwToken.id !== uid) return res.json({ message: 'Unauthorized' });
+    if (!checkAdmin && jwToken.id !== userFound._id.toString()) return res.json({ message: 'Unauthorized' });
 
     if (Object.entries(body).length === 0) return next(400);
 
@@ -126,6 +128,9 @@ const updateUser = async (req, res, next) => {
     if (body.email && !isValidEmail(body.email)) return next(400);
     if (body.password && !isValidPassword(body.password)) return next(400);
 
+    const encryptPass = await User.encryptPassword(body.password);
+    body.password = encryptPass;
+    // console.log(await User.matchPassword('User2222', encryptPass));
     const updatedUser = await User.findByIdAndUpdate(uid, body, {
       new: true, // para obtener los valores actualizados
     });
@@ -148,11 +153,13 @@ const deleteUser = async (req, res, next) => {
     // console.log(jwToken.id === uid);
 
     const validate = isCorrectIdOrEmail(uid);
+
+    if (validate.message === 'id or email format incorrect') return res.status(404).json(validate);
     const userFound = await User.findOne(validate);
-    // console.log(userFound);
+
     if (!userFound) return next(404);
     // console.log(userFound._id.toString());
-    if (checkAdmin || jwToken.id === uid) {
+    if (checkAdmin || jwToken.id === userFound._id.toString()) {
       await User.findByIdAndDelete({ _id: userFound._id });
       return res.status(200).send(userFound);
     }

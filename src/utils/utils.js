@@ -31,7 +31,7 @@ const isCorrectId = (parameter) => {
 
   if (isMongoIdValid) return { _id: parameter };
 
-  return { message: 'id format incorrect' };
+  // return { message: 'id format incorrect' };
 };
 
 const pages = (collection, url, limit, page, totalPages) => {

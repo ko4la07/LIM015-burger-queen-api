@@ -5,10 +5,20 @@ const mongoosePaginate = require('mongoose-paginate-v2');
 const { Schema, model } = mongoose;
 
 const productSchema = new Schema({
-  name: String,
-  category: String,
-  price: Number,
-  image: String,
+  name: {
+    type: String,
+    required: true,
+  },
+  type: {
+    type: String,
+  },
+  price: {
+    type: Number,
+    required: true,
+  },
+  image: {
+    type: String,
+  },
 }, {
   timestamps: true,
   versionKey: false,

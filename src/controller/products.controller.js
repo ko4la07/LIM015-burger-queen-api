@@ -5,13 +5,13 @@ const { isCorrectId, pages } = require('../utils/utils');
 const createProduct = async (req, res, next) => {
   try {
     const {
-      name, category, price, image,
+      name, type, price, image,
     } = req.body;
 
     if (Object.entries(req.body).length === 0) return next(400);
 
     const newProduct = new Product({
-      name, category, price, image,
+      name, type, price, image,
     });
     const productSaved = await newProduct.save();
     res.status(200).json(productSaved);
@@ -30,7 +30,7 @@ const getProducts = async (req, res, next) => {
     const products = await Product.paginate({}, { limit, page });
     // console.log(products.totalPages);
     const linksPages = pages(products, url, products.limit, products.page, products.totalPages);
-
+    // res.json(products);
     res.json(linksPages);
   } catch (error) {
     return next(error);
@@ -50,9 +50,20 @@ const getProductById = async (req, res, next) => {
 
 const updateProductById = async (req, res, next) => {
   try {
+    const { body } = req;
+    const { productId } = req.params;
+    // console.log(productId);
+    if (!isCorrectId(productId)) return res.status(404).json({ message: 'wrong id format' });
+    if (Object.entries(body).length === 0) return next(400);
+    const productFound = await Product.findById(productId);
+    // console.log(productFound);
+
+    if (!productFound) return res.status(404).json({ message: 'the product does not exist' });
+
     const updatedProduct = await Product.findByIdAndUpdate(req.params.productId, req.body, {
       new: true, // para obtener los valores actualizados
     });
+
     return res.status(200).json(updatedProduct);
   } catch (error) {
     return next(error);
