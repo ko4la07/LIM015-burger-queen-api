@@ -27,10 +27,10 @@ module.exports.isAuthenticated = async (req, resp, next) => {
     });
     const searchUser = await User.findById(req.userId);
     // console.log(searchUser);
-    if (!searchUser) return resp.status(404).json({ message: 'Error Token: no user found' });
+    if (!searchUser) return resp.status(401).json({ message: 'Error Token: no user found' });
     next();
   } catch (error) {
-    return resp.status(401).json({ message: 'Unauthorized' });
+    return next(401);
   }
 };
 
@@ -43,7 +43,7 @@ module.exports.isAdmin = async (req, resp, next) => {
     if (!result) return next(403);
     next();
   } catch (error) {
-    console.error(error);
+    return next(403);
   }
 };
 

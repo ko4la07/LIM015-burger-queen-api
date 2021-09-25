@@ -3,22 +3,22 @@ const User = require('../models/User');
 const config = require('../config');
 
 // autenticando usuarios
-const authUser = async (req, res, next) => {
+const authUser = async (req, res) => {
   // res.json('autenticando');
   const { email, password } = req.body;
   // console.log(req.body);
 
   // verificamos que los campos no esten vacíos
   if (!email || !password) {
-    return next(400);
-    // res.json('pass or email empty');
+    // return next(400);
+    return res.status(400).json({ message: 'email or password missing' });
   }
 
   // buscamos coincidencias del email ingresado
   const userSearch = User.findOne({ email }).populate('roles');
   userSearch
     .then((doc) => {
-      if (doc === null) res.status(400).json({ message: 'User does not exist' });
+      if (doc === null) return res.status(404).json({ message: 'User does not exist' });
       // console.log(doc);
 
       // Corroboramos que la contraseña ingresada es correcta
@@ -26,7 +26,7 @@ const authUser = async (req, res, next) => {
       // console.log(matchPass);
       matchPass
         .then((pass) => {
-          if (!pass) return res.status(400).json({ token: null, message: 'Invalid Password' });
+          if (!pass) return res.status(404).json({ token: null, message: 'Invalid Password' });
 
           const token = jwt.sign({ id: doc._id }, config.secret, {
             expiresIn: 86400, // 24 horas

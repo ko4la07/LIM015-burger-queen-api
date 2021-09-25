@@ -1,4 +1,4 @@
-const config = require('../config');
+const config = require('../src/config');
 
 const { fetch, fetchWithAuth } = process;
 
@@ -28,6 +28,7 @@ describe('POST /auth', () => {
     fetch('/auth', {
       method: 'POST',
       body: { email: `foo-${Date.now()}@bar.baz`, password: 'xxxx' },
+      // body: { email: 'test@test.test', password: 'xxxx' },
     })
       .then((resp) => expect(resp.status).toBe(404))
   ));

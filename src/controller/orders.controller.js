@@ -5,7 +5,7 @@ const createOrder = async (req, res, next) => {
   try {
     const { userId, client, products } = req.body;
 
-    if (!products || products.length === 0) return next(400);
+    if (!products || products.length === 0) return res.status(400).json({ message: 'not products' });
 
     const productsArray = products.map((elemento) => ({
       qty: elemento.qty,
@@ -36,7 +36,9 @@ const getOrders = async (req, res, next) => {
     // console.log(products.totalPages);
     const linksPages = pages(orders, url, orders.limit, orders.page, orders.totalPages);
     // res.json(orders);
-    res.json(linksPages);
+    // res.json(linksPages);
+    res.links(linksPages);
+    return res.status(200).json(orders.docs);
   } catch (error) {
     return next(error);
   }
@@ -46,7 +48,7 @@ const getOrderById = async (req, res, next) => {
   try {
     if (!isCorrectId(req.params.orderId)) return next(404);
     const orderFound = await Order.findOne({ _id: req.params.orderId }).populate('products.product');
-    if (!orderFound) return next(404);
+    if (!orderFound) return res.status(404).json({ message: 'the order does not exist' });
     return res.status(200).json(orderFound);
   } catch (error) {
     return next(error);

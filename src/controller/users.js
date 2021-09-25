@@ -11,16 +11,17 @@ const {
 const createUser = async (req, res, next) => {
   try {
     const {
-      username, email, password, roles,
+      email, password, roles,
     } = req.body;
 
     // verificamos que los campos no esten vacíos
     if (!email || !password) {
-      return next(400);
+      // return next(400);
+      return res.status(400).json({ message: 'email or password missing' });
     }
 
     // check if email y pass entry are correct
-    if (!isValidEmail(email) || !isValidPassword(password)) return next(400);
+    if (!isValidEmail(email) || !isValidPassword(password)) return res.status(400).json({ message: 'invalid email or password' });
     // return res.json('valido');
     const searchUser = await User.findOne({ email });
     // console.log(searchUser);
@@ -28,7 +29,6 @@ const createUser = async (req, res, next) => {
       return res.status(403).json({ message: 'The email is already registered' });
     }
     const newUser = new User({
-      username,
       email,
       password: await User.encryptPassword(password),
       roles,
@@ -42,9 +42,9 @@ const createUser = async (req, res, next) => {
       newUser.roles = [role._id];
     }
 
-    await newUser.save();
+    const user = await newUser.save();
 
-    return res.status(200).json({ message: 'User created successfully' });
+    return res.status(200).json(user);
   } catch (error) {
     return next(error);
   }
@@ -61,8 +61,9 @@ const getUsers = async (req, res, next) => {
     const allUsers = await User.paginate({}, { limit, page });
     // console.log(url, allUsers.limit, allUsers.page, allUsers.totalPages);
     const linksPages = pages(allUsers, url, allUsers.limit, allUsers.page, allUsers.totalPages);
-    // console.log(allUsers);
-    res.json(linksPages);
+    // res.json(allUsers);
+    res.links(linksPages);
+    return res.status(200).json(allUsers.docs);
   } catch (error) {
     return next(error);
   }
@@ -86,11 +87,9 @@ const getUserById = async (req, res, next) => {
 
     const checkAdmin = await checkIsAdmin(req);
 
-    // console.log(jwToken.id === uid);
-    if (checkAdmin || jwToken.id === userFound._id.toString()) {
-      return res.status(200).json(userFound);
-    }
-    return next(403);
+    // console.log(checkAdmin || jwToken.id === userFound._id.toString());
+    if (!checkAdmin && jwToken.id !== userFound._id.toString()) return next(403);
+    return res.status(200).json(userFound);
   } catch (error) {
     return next(error);
   }
@@ -119,11 +118,11 @@ const updateUser = async (req, res, next) => {
 
     // console.log(jwToken.id === uid);
 
-    if (!checkAdmin && jwToken.id !== userFound._id.toString()) return res.json({ message: 'Unauthorized' });
+    if (!checkAdmin && jwToken.id !== userFound._id.toString()) return res.status(403).json({ message: 'Unauthorized' });
 
-    if (Object.entries(body).length === 0) return next(400);
+    if (Object.entries(body).length === 0) return res.status(400).json({ message: 'nothing to update' });
 
-    if (!checkAdmin && body.roles) return res.json({ message: 'require admin role' });
+    if (!checkAdmin && body.roles) return res.status(403).json({ message: 'require admin role' });
 
     if (body.email && !isValidEmail(body.email)) return next(400);
     if (body.password && !isValidPassword(body.password)) return next(400);
@@ -134,9 +133,9 @@ const updateUser = async (req, res, next) => {
     const updatedUser = await User.findByIdAndUpdate(uid, body, {
       new: true, // para obtener los valores actualizados
     });
-    res.status(200).json(updatedUser);
+    res.status(200).send(updatedUser);
   } catch (error) {
-    res.json({ message: error });
+    return next(404);
   }
 };
 
@@ -157,13 +156,12 @@ const deleteUser = async (req, res, next) => {
     if (validate.message === 'id or email format incorrect') return res.status(404).json(validate);
     const userFound = await User.findOne(validate);
 
-    if (!userFound) return next(404);
+    // if (!userFound) return res.status(404).json({ message: 'user not found' });
     // console.log(userFound._id.toString());
-    if (checkAdmin || jwToken.id === userFound._id.toString()) {
-      await User.findByIdAndDelete({ _id: userFound._id });
-      return res.status(200).send(userFound);
-    }
-    return next(403);
+    if (!checkAdmin && jwToken.id !== userFound._id.toString()) return res.status(403).json({ message: 'not admin or not owner' });
+    if (!userFound) return res.status(404).json({ message: 'user not found' });
+    await User.findByIdAndDelete({ _id: userFound._id });
+    return res.status(200).send(userFound);
   } catch (error) {
     return next(error);
   }

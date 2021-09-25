@@ -19,14 +19,13 @@ const initAdminUser = (app, next) => {
 
   const adminUser = {
     username: 'admin',
-    email: 'adminEmail',
+    email: adminEmail,
     password: bcrypt.hashSync(adminPassword, 10),
-    // roles: { admin: true },
     roles: ['admin', 'moderator', 'user'],
   };
 
   // crear usuaria admin
-  const searchUser = User.findOne({ email: 'adminEmail' });
+  const searchUser = User.findOne({ email: adminEmail });
 
   searchUser
     .then((doc) => {

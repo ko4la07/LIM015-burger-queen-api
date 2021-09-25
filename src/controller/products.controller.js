@@ -8,7 +8,7 @@ const createProduct = async (req, res, next) => {
       name, type, price, image,
     } = req.body;
 
-    if (Object.entries(req.body).length === 0) return next(400);
+    if (Object.entries(req.body).length === 0) return res.status(400).json({ message: 'body empty' });
 
     const newProduct = new Product({
       name, type, price, image,
@@ -31,7 +31,9 @@ const getProducts = async (req, res, next) => {
     // console.log(products.totalPages);
     const linksPages = pages(products, url, products.limit, products.page, products.totalPages);
     // res.json(products);
-    res.json(linksPages);
+    // res.json(linksPages);
+    res.links(linksPages);
+    return res.status(200).json(products.docs);
   } catch (error) {
     return next(error);
   }
@@ -41,7 +43,7 @@ const getProductById = async (req, res, next) => {
   try {
     if (!isCorrectId(req.params.productId)) return next(404);
     const product = await Product.findById(req.params.productId);
-    if (!product) return next(404);
+    if (!product) return res.status(404).json({ message: 'product not found' });
     return res.status(200).json(product);
   } catch (error) {
     return next(error);
