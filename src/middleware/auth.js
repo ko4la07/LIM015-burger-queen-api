@@ -9,7 +9,7 @@ module.exports.isAuthenticated = async (req, resp, next) => {
   try {
     const { authorization } = req.headers;
     if (!authorization) {
-      return next(403);
+      return resp.status(401).json({ message: 'no authorization' });
     }
 
     const [type, token] = authorization.split(' ');
@@ -40,7 +40,8 @@ module.exports.isAdmin = async (req, resp, next) => {
     const element = doc.roles;
     const res = element.map((id) => id.name);
     const result = res.includes('admin');
-    if (!result) return next(403);
+    // result ? next() : next(403);
+    if (!result) return resp.status(403).json({ message: 'not admin' });
     next();
   } catch (error) {
     return next(403);

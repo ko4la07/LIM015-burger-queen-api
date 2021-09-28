@@ -54,25 +54,25 @@ const fetchWithAuth = (token) => (url, opts = {}) => fetch(url, {
 const fetchAsAdmin = (url, opts) => fetchWithAuth(__e2e.adminToken)(url, opts);
 const fetchAsTestUser = (url, opts) => fetchWithAuth(__e2e.testUserToken)(url, opts);
 
-// const createTestUser = () => fetchAsAdmin('/users', {
-//   method: 'POST',
-//   body: __e2e.testUserCredentials,
-// })
-//   // eslint-disable-next-line no-console
-//   .then((res) => console.log(res))
-//   .then((resp) => {
-//     if (resp.status !== 200) {
-//       throw new Error('Could not create test user');
-//     }
-//     return fetch('/auth', { method: 'POST', body: __e2e.testUserCredentials });
-//   })
-//   .then((resp) => {
-//     if (resp.status !== 200) {
-//       throw new Error('Could not authenticate test user');
-//     }
-//     return resp.json();
-//   })
-//   .then(({ token }) => Object.assign(__e2e, { testUserToken: token }));
+const createTestUser = () => fetchAsAdmin('/users', {
+  method: 'POST',
+  body: __e2e.testUserCredentials,
+})
+  .then((resp) => {
+    // eslint-disable-next-line no-console
+    console.log(resp.status);
+    if (resp.status !== 200) {
+      throw new Error('Could not create test user');
+    }
+    return fetch('/auth', { method: 'POST', body: __e2e.testUserCredentials });
+  })
+  .then((resp) => {
+    if (resp.status !== 200) {
+      throw new Error('Could not authenticate test user');
+    }
+    return resp.json();
+  })
+  .then(({ token }) => Object.assign(__e2e, { testUserToken: token }));
 
 const checkAdminCredentials = () => fetch('/auth', {
   method: 'POST',
@@ -140,7 +140,7 @@ module.exports = () => new Promise((resolve, reject) => {
 
     waitForServerToBeReady()
       .then(checkAdminCredentials)
-      // .then(createTestUser)
+      .then(createTestUser)
       .then(resolve)
       .catch((err) => {
         kill(child.pid, 'SIGKILL', () => reject(err));

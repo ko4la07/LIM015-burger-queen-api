@@ -58,9 +58,11 @@ const updateProductById = async (req, res, next) => {
     if (!isCorrectId(productId)) return res.status(404).json({ message: 'wrong id format' });
     if (Object.entries(body).length === 0) return next(400);
     const productFound = await Product.findById(productId);
-    // console.log(productFound);
 
-    if (!productFound) return res.status(404).json({ message: 'the product does not exist' });
+    if (body.price && typeof body.price !== 'number') return res.status(400).json({ message: 'the price must be a number' });
+    // console.log(body.price);
+
+    if (!productFound) return res.status(400).json({ message: 'the product does not exist' });
 
     const updatedProduct = await Product.findByIdAndUpdate(req.params.productId, req.body, {
       new: true, // para obtener los valores actualizados

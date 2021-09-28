@@ -83,12 +83,13 @@ const getUserById = async (req, res, next) => {
     if (validate.message === 'id or email format incorrect') return res.status(404).json(validate);
     const userFound = await User.findOne(validate);
     // console.log(userFound);
-    if (!userFound) return next(404);
+    // if (!userFound) return next(404);
 
     const checkAdmin = await checkIsAdmin(req);
 
+    if (checkAdmin && !userFound) return res.status(404).json({ message: 'user not found' });
     // console.log(checkAdmin || jwToken.id === userFound._id.toString());
-    if (!checkAdmin && jwToken.id !== userFound._id.toString()) return next(403);
+    if (!checkAdmin && jwToken.id !== userFound._id.toString()) return res.status(403).json({ message: 'not owner nor admin' });
     return res.status(200).json(userFound);
   } catch (error) {
     return next(error);
@@ -111,11 +112,12 @@ const updateUser = async (req, res, next) => {
     if (validate.message === 'id or email format incorrect') return res.status(404).json(validate);
 
     const userFound = await User.findOne(validate);
-
-    if (!userFound) return next(404);
+    // console.log(userFound);
+    // if (!userFound) return next(404);
 
     const checkAdmin = await checkIsAdmin(req);
 
+    if (checkAdmin && !userFound) return res.status(404).json({ message: 'user not found' });
     // console.log(jwToken.id === uid);
 
     if (!checkAdmin && jwToken.id !== userFound._id.toString()) return res.status(403).json({ message: 'Unauthorized' });

@@ -18,7 +18,6 @@ const initAdminUser = (app, next) => {
   }
 
   const adminUser = {
-    username: 'admin',
     email: adminEmail,
     password: bcrypt.hashSync(adminPassword, 10),
     roles: ['admin', 'moderator', 'user'],

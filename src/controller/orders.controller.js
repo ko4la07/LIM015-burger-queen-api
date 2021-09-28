@@ -67,9 +67,9 @@ const updateOrder = async (req, res, next) => {
     // console.log(validStatus.includes(body.status));
     if (Object.entries(body).length === 0) return res.status(400).json({ message: 'body empty' });
 
-    const validStatus = ['pending', 'canceled', 'delivering', 'delivered'];
+    const validStatus = ['pending', 'canceled', 'delivering', 'delivered', 'preparing'];
     // console.log(body.status);
-    if (body.status && (!validStatus.includes(body.status))) return res.status(404).json({ message: 'status incorrect' });
+    if (body.status && (!validStatus.includes(body.status))) return res.status(400).json({ message: 'status incorrect' });
     const updatedOrder = await Order.findByIdAndUpdate(orderId, body, {
       new: true, // para obtener los valores actualizados
     });
