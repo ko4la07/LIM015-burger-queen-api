@@ -132,7 +132,7 @@ const updateUser = async (req, res, next) => {
     const encryptPass = await User.encryptPassword(body.password);
     body.password = encryptPass;
     // console.log(await User.matchPassword('User2222', encryptPass));
-    const updatedUser = await User.findByIdAndUpdate(uid, body, {
+    const updatedUser = await User.findByIdAndUpdate(userFound._id, body, {
       new: true, // para obtener los valores actualizados
     });
     res.status(200).send(updatedUser);

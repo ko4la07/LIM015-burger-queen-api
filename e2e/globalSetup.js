@@ -60,7 +60,7 @@ const createTestUser = () => fetchAsAdmin('/users', {
 })
   .then((resp) => {
     // eslint-disable-next-line no-console
-    console.log(resp.status);
+    // console.log(resp.status);
     if (resp.status !== 200) {
       throw new Error('Could not create test user');
     }

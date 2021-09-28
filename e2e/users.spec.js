@@ -245,12 +245,10 @@ describe('PUT /users/:uid', () => {
         body: { email: 'test@test.test', password: 'Garmadon123' },
       }))
       .then((resp) => {
-        // eslint-disable-next-line no-console
-        console.log(resp.status);
         expect(resp.status).toBe(200);
-        // return resp.json();
+        return resp.json();
       })
-      // .then((json) => expect(json).toHaveProperty('token'))
+      .then((json) => expect(json).toHaveProperty('token'))
   ));
 
   it('should update user when admin', () => (
@@ -259,15 +257,15 @@ describe('PUT /users/:uid', () => {
       body: { password: 'Ohmygod1' },
     })
       .then((resp) => expect(resp.status).toBe(200))
-      // .then(() => fetch('/auth', {
-      //   method: 'POST',
-      //   body: { email: 'test@test.test', password: 'Ohmygod1' },
-      // }))
-      // .then((resp) => {
-      //   expect(resp.status).toBe(200);
-      //   return resp.json();
-      // })
-      // .then((json) => expect(json).toHaveProperty('token'))
+      .then(() => fetch('/auth', {
+        method: 'POST',
+        body: { email: 'test@test.test', password: 'Ohmygod1' },
+      }))
+      .then((resp) => {
+        expect(resp.status).toBe(200);
+        return resp.json();
+      })
+      .then((json) => expect(json).toHaveProperty('token'))
   ));
 });
 
