@@ -34,7 +34,6 @@ describe('GET /users', () => {
       .then((json) => {
         expect(Array.isArray(json)).toBe(true);
         expect(json.length > 0).toBe(true);
-        // TODO: Check that the results are actually the "expected" user objects
       })
   ));
 
