@@ -164,7 +164,7 @@ describe('POST /users', () => {
       .then((json) => {
         expect(typeof json._id).toBe('string');
         expect(typeof json.email).toBe('string');
-        // expect(typeof json.password).toBe('undefined');
+        expect(typeof json.password).toBe('string');
         // expect(typeof json.roles).toBe('object');
         // expect(json.roles.admin).toBe(false);
       })

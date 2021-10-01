@@ -57,7 +57,6 @@ describe('GET /products', () => {
 
 describe('GET /products/:productid', () => {
   it('should fail with 404 when not found', () => (
-    // fetchAsTestUser('/products/notarealproduct')
     fetchAsTestUser('/products/6149f6fdeb097441843c684a')
       .then((resp) => expect(resp.status).toBe(404))
   ));
