@@ -11,6 +11,7 @@ const {
 const User = require('../models/User');
 const Role = require('../models/Role');
 
+/* istanbul ignore next */
 const initAdminUser = (app, next) => {
   const { adminEmail, adminPassword } = app.get('config');
   if (!adminEmail || !adminPassword) {

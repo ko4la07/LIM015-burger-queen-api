@@ -90,6 +90,41 @@ describe('GET /users/:uid', () => {
       });
   });
 
+  it('should fail with 401 when bas type token', (done) => {
+    request(app)
+      .post('/auth')
+      .send(adminUser)
+      .then(((res) => {
+        const { token } = res.body;
+        request(app)
+          .get(`/users/${userTest.email}`)
+          .set('Authorization', `${token}`)
+          .expect('Content-Type', /json/)
+          .expect(401)
+          .then((response) => {
+            expect(response.body).toEqual({ message: 'Bad type of token' });
+            done();
+          });
+      }));
+  });
+
+  it('should fail with 404 when id or email format is wrong', (done) => {
+    request(app)
+      .post('/auth')
+      .send(adminUser)
+      .then(((res) => {
+        const { token } = res.body;
+        request(app)
+          .get('/users/hola')
+          .set('Authorization', `Bearer ${token}`)
+          .expect(404)
+          .then((response) => {
+            expect(response.body).toEqual({ message: 'id or email format incorrect' });
+            done();
+          });
+      }));
+  });
+
   it('should fail with 403 when not owner nor admin', (done) => {
     request(app)
       .post('/auth')

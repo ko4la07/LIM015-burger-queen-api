@@ -1,5 +1,6 @@
 const Role = require('../models/Role');
 
+/* istanbul ignore next */
 const createRoles = async () => {
   try {
     const count = await Role.estimatedDocumentCount();

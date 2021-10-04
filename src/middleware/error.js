@@ -1,3 +1,4 @@
+/* istanbul ignore next */
 const httpErrors = {
   400: 'Bad request',
   401: 'Unauthorized',
@@ -6,10 +7,12 @@ const httpErrors = {
   500: 'Internal server error',
 };
 
+/* istanbul ignore next */
 const isKnownHTTPErrorStatus = (num) => (
   typeof num === 'number' && Object.keys(httpErrors).indexOf(`${num}`) >= 0
 );
 
+/* istanbul ignore next */
 // eslint-disable-next-line no-unused-vars
 module.exports = (err, req, resp, next) => {
   const statusCode = (isKnownHTTPErrorStatus(err))
