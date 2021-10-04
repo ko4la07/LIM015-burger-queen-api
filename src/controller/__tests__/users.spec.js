@@ -83,7 +83,11 @@ describe('GET /users/:uid', () => {
     request(app)
       .get(`/users/${adminUser.email}`)
       .expect('Content-Type', /json/)
-      .expect(401, done);
+      .expect(401)
+      .then((response) => {
+        expect(response.body).toEqual({ message: 'no authorization' });
+        done();
+      });
   });
 
   it('should fail with 403 when not owner nor admin', (done) => {

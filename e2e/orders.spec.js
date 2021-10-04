@@ -194,11 +194,6 @@ describe('GET /orders/:orderId', () => {
       .then((resp) => expect(resp.status).toBe(401))
   ));
 
-  // it('should fail with 404 when admin and not found', () => (
-  //   fetchAsAdmin('/orders/xxx')
-  //     .then((resp) => expect(resp.status).toBe(404))
-  // ));
-
   it('should get order as user', () => (
     Promise.all([
       fetchAsAdmin('/products', {
