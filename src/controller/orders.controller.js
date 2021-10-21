@@ -32,7 +32,8 @@ const getOrders = async (req, res, next) => {
     const limit = parseInt(req.query.limit, 10) || 10;
     const page = parseInt(req.query.page, 10) || 1;
 
-    const orders = await Order.paginate({}, { limit, page });
+    const populate = 'products.product';
+    const orders = await Order.paginate({}, { limit, page, populate });
     // console.log(products.totalPages);
     const linksPages = pages(orders, url, orders.limit, orders.page, orders.totalPages);
     // res.json(orders);

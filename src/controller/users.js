@@ -57,8 +57,8 @@ const getUsers = async (req, res, next) => {
     // console.log(url);
     const limit = parseInt(req.query.limit, 10) || 10;
     const page = parseInt(req.query.page, 10) || 1;
-
-    const allUsers = await User.paginate({}, { limit, page });
+    const populate = 'roles';
+    const allUsers = await User.paginate({}, { limit, page, populate });
     // console.log(url, allUsers.limit, allUsers.page, allUsers.totalPages);
     const linksPages = pages(allUsers, url, allUsers.limit, allUsers.page, allUsers.totalPages);
     // res.json(allUsers);
